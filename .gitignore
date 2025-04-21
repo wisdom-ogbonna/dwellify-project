@@ -1,0 +1,12 @@
+# node dependencies
+node_modules/
+
+# Expo project files
+.expo/
+.expo-shared/
+
+# macOS system files
+.DS_Store
+
+# Environment files
+.env
