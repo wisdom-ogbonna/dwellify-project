@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { useRouter } from 'expo-router';
 import onboardingStyles from '../style/HomeScreenStyles';
@@ -7,17 +7,17 @@ import onboardingStyles from '../style/HomeScreenStyles';
 const onboardingData = [
   {
     title: 'Welcome to Dwellify',
-    description: 'Find homes, agents, and services around Choba & Port Harcourt with ease.',
+    description: 'Find homes, agents, and services around Choba & Port Harcourt effortlessly.',
     image: require('../assets/images/onboarding1.png'),
   },
   {
-    title: 'Report ICE Raids Fast',
-    description: 'Quickly alert people nearby when there’s a raid, so they can stay safe.',
+    title: 'Connect with Agents Instantly',
+    description: 'Easily reach verified agents nearby and book a house or apartment with ease.',
     image: require('../assets/images/onboarding2.png'),
   },
   {
-    title: 'Stay Safe, Stay Notified',
-    description: 'Receive instant alerts and safety updates in your area.',
+    title: 'Get Smart Updates',
+    description: 'Stay informed about new listings, offers, and agent replies in real time.',
     image: require('../assets/images/onboarding3.png'),
   },
 ];
@@ -44,7 +44,7 @@ const OnboardingScreen = () => {
   };
 
   return (
-    <View style={onboardingStyles.container}>
+    <SafeAreaView style={onboardingStyles.container}>
       <PagerView
         style={onboardingStyles.pagerView}
         initialPage={0}
@@ -67,8 +67,9 @@ const OnboardingScreen = () => {
             style={[
               onboardingStyles.dot,
               {
-                width: pageIndex === i ? 24 : 10,
-                backgroundColor: pageIndex === i ? '#007AFF' : '#E5E7EB',
+                width: pageIndex === i ? 30 : 12,
+                backgroundColor: pageIndex === i ? '#007AFF' : '#D1D5DB',
+                opacity: pageIndex === i ? 1 : 0.5,
               },
             ]}
           />
@@ -86,7 +87,7 @@ const OnboardingScreen = () => {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
