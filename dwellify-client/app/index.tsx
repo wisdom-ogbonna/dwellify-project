@@ -31,12 +31,12 @@ const OnboardingScreen = () => {
     if (pageIndex < onboardingData.length - 1) {
       pagerRef.current.setPage(pageIndex + 1);
     } else {
-      router.replace('/verify');
+      router.replace('/map');
     }
   };
 
   const handleSkip = () => {
-    router.replace('/verify');
+    router.replace('/map');
   };
 
   const onPageSelected = (e) => {

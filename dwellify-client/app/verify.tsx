@@ -1,53 +1,102 @@
-import React, { useState } from 'react';
-import { View, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, TextInput, Button, Snackbar, Card, Divider } from 'react-native-paper';
-import { MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
-import styles from '../style/VerifyScreenStyle';
-import colors from '../constants/colors';
+import React, { useRef, useState } from "react";
+import { View, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  Text,
+  TextInput,
+  Button,
+  Snackbar,
+  Card,
+  Divider,
+} from "react-native-paper";
+import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
+import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
+import { signInWithPhoneNumber } from "firebase/auth";
+import { auth } from "../config/firebaseConfig";
+import styles from "../style/VerifyScreenStyle";
+import colors from "../constants/colors";
 
 const PhoneVerificationScreen = () => {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [codeSent, setCodeSent] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [snackbar, setSnackbar] = useState({ visible: false, message: '', color: '' });
+  const [otp, setOtp] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    visible: false,
+    message: "",
+    color: "",
+  });
+  const recaptchaVerifier = useRef(null);
+  const [confirmation, setConfirmation] = useState(null);
 
-  const handleSendCode = () => {
-    if (/^\+?\d{10,15}$/.test(phoneNumber)) {
+  const handleSendCode = async () => {
+    try {
+      const confirmResult = await signInWithPhoneNumber(
+        auth,
+        phoneNumber,
+        recaptchaVerifier.current
+      );
+      setConfirmation(confirmResult);
       setCodeSent(true);
       setSnackbar({ visible: true, message: 'Verification code sent!', color: colors.success });
-    } else {
-      setSnackbar({ visible: true, message: 'Please enter a valid phone number.', color: colors.error });
+    } catch (error) {
+      console.error(error);
+      setSnackbar({ visible: true, message: 'Failed to send code.', color: colors.error });
     }
   };
+  
 
-  const handleVerifyOtp = () => {
-    if (otp === '123456') {
-      setSnackbar({ visible: true, message: 'Phone verified successfully!', color: colors.success });
-    } else {
-      setSnackbar({ visible: true, message: 'Incorrect verification code.', color: colors.error });
+  const handleVerifyOtp = async () => {
+    try {
+      await confirmation.confirm(otp);
+      setSnackbar({ visible: true, message: 'Phone verified!', color: colors.success });
+      // navigate or set auth context
+    } catch (error) {
+      setSnackbar({ visible: true, message: 'Invalid code.', color: colors.error });
     }
   };
+  
 
   const handleEmailAuth = () => {
-    setSnackbar({ visible: true, message: 'Email login clicked (not implemented)', color: colors.accent });
+    setSnackbar({
+      visible: true,
+      message: "Email login clicked (not implemented)",
+      color: colors.accent,
+    });
   };
 
   const handleGoogleAuth = () => {
-    setSnackbar({ visible: true, message: 'Google login clicked (not implemented)', color: colors.accent });
+    setSnackbar({
+      visible: true,
+      message: "Google login clicked (not implemented)",
+      color: colors.accent,
+    });
   };
 
   const handleFacebookAuth = () => {
-    setSnackbar({ visible: true, message: 'Facebook login clicked (not implemented)', color: colors.accent });
+    setSnackbar({
+      visible: true,
+      message: "Facebook login clicked (not implemented)",
+      color: colors.accent,
+    });
   };
+
+
+
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.container}
     >
+          {/* ✅ MOVE THIS HERE */}
+    <FirebaseRecaptchaVerifierModal
+      ref={recaptchaVerifier}
+      firebaseConfig={auth.app.options}
+    />
       <Card style={styles.card} elevation={5}>
         <Card.Content>
-          <Text variant="titleLarge" style={styles.title}>Verify Your Account</Text>
+          <Text variant="titleLarge" style={styles.title}>
+            Verify Your Account
+          </Text>
           <Text style={styles.subtitle}>
             Choose a method to verify your identity.
           </Text>
@@ -76,7 +125,9 @@ const PhoneVerificationScreen = () => {
           {codeSent && (
             <>
               <Divider style={styles.divider} />
-              <Text style={styles.otpLabel}>Enter the 6-digit code sent to your number:</Text>
+              <Text style={styles.otpLabel}>
+                Enter the 6-digit code sent to your number:
+              </Text>
               <TextInput
                 label="Verification Code"
                 value={otp}
@@ -114,7 +165,13 @@ const PhoneVerificationScreen = () => {
             mode="outlined"
             onPress={handleGoogleAuth}
             style={styles.altButton}
-            icon={() => <MaterialCommunityIcons name="google" size={20} color={colors.textPrimary} />}
+            icon={() => (
+              <MaterialCommunityIcons
+                name="google"
+                size={20}
+                color={colors.textPrimary}
+              />
+            )}
             textColor={colors.textPrimary}
           >
             Continue with Google
@@ -124,7 +181,9 @@ const PhoneVerificationScreen = () => {
             mode="outlined"
             onPress={handleFacebookAuth}
             style={styles.altButton}
-            icon={() => <FontAwesome name="facebook" size={20} color="#1877F2" />}
+            icon={() => (
+              <FontAwesome name="facebook" size={20} color="#1877F2" />
+            )}
             textColor={colors.textPrimary}
           >
             Continue with Facebook
