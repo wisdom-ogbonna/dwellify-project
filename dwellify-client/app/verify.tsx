@@ -14,6 +14,8 @@ import { signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import styles from "../style/VerifyScreenStyle";
 import colors from "../constants/colors";
+import { useRouter } from "expo-router";
+
 
 const PhoneVerificationScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -42,13 +44,15 @@ const PhoneVerificationScreen = () => {
       setSnackbar({ visible: true, message: 'Failed to send code.', color: colors.error });
     }
   };
+  const router = useRouter();
+
   
 
   const handleVerifyOtp = async () => {
     try {
       await confirmation.confirm(otp);
       setSnackbar({ visible: true, message: 'Phone verified!', color: colors.success });
-      // navigate or set auth context
+      router.replace("/map");
     } catch (error) {
       setSnackbar({ visible: true, message: 'Invalid code.', color: colors.error });
     }

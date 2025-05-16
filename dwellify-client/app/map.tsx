@@ -10,7 +10,9 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons";
-import mapStyle from "../assets/mapStyle"; // Ensure this exists
+import mapStyle from "../assets/mapStyle"; 
+import styles from "../style/MapStyle"; 
+
 
 const mockAgents = [
   {
@@ -29,7 +31,7 @@ const mockAgents = [
   },
 ];
 
-export default function App() {
+export default function Map() {
   const [region] = useState({
     latitude: 6.5244,
     longitude: 3.3792,
@@ -62,12 +64,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>🏡 Dwellify Dashboard</Text>
-        <TouchableOpacity style={styles.filterButton}>
-          <Ionicons name="filter" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
+
 
       {/* Search Bar */}
       <View style={styles.searchBar}>
@@ -133,115 +130,3 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    width: "100%",
-    height: "100%",
-  },
-  header: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    right: 20,
-    zIndex: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
-    backgroundColor: "#3B82F6",
-    padding: 10,
-    borderRadius: 10,
-  },
-  filterButton: {
-    backgroundColor: "#3B82F6",
-    padding: 10,
-    borderRadius: 10,
-  },
-  searchBar: {
-    position: "absolute",
-    top: 110,
-    left: 20,
-    right: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    zIndex: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-  },
-  searchInput: {
-    marginLeft: 10,
-    flex: 1,
-    fontSize: 16,
-  },
-  agentList: {
-    position: "absolute",
-    bottom: 100,
-    paddingLeft: 20,
-  },
-  agentCard: {
-    backgroundColor: "#fff",
-    marginRight: 15,
-    padding: 10,
-    borderRadius: 12,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    width: 120,
-  },
-  agentImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 8,
-  },
-  agentName: {
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  customMarker: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-    borderRadius: 25,
-    padding: 2,
-    borderWidth: 2,
-    borderColor: "#3B82F6",
-  },
-  markerImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  footerButtonWrapper: {
-    position: "absolute",
-    bottom: 40,
-    left: 20,
-    right: 20,
-    alignItems: "center",
-  },
-  findButton: {
-    backgroundColor: "#3B82F6",
-    paddingVertical: 18,
-    paddingHorizontal: 30,
-    borderRadius: 12,
-  },
-  findButtonText: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "600",
-  },
-});
