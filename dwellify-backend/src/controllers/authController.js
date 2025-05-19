@@ -1,46 +1,75 @@
-import { sendSMS } from '../services/termiiService.js';
-import { isValidPhoneNumber } from '../utils/validation.js';
+import { client, twilioPhone } from "../config/twilioClient.js";
+import { otpStore, generateOTP } from "../utils/otpStore.js";
+import { db, admin } from '../config/firebaseAdmin.js'; // ✅ match exactly
 
-const codes = {}; // In-memory store for demo; use DB/Redis for real use
 
 export const sendVerificationCode = async (req, res) => {
   const { phone } = req.body;
-  if (!isValidPhoneNumber(phone)) {
-    return res.status(400).json({ message: 'Invalid phone number' });
-  }
+  const otp = generateOTP();
 
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  otpStore[phone] = { code: otp, expiresAt: Date.now() + 5 * 60 * 1000 };
 
   try {
-    console.log('📱 Phone received:', phone);
-    const termiiResponse = await sendSMS(phone, code);
+    const message = await client.messages.create({
+      body: `Your OTP code is ${otp}`,
+      from: twilioPhone,
+      to: phone,
+    });
 
-    console.log('📨 Termii response:', JSON.stringify(termiiResponse, null, 2));
-    
-
-    // Optionally check if Termii actually accepted the message
-    if (termiiResponse.code !== 'ok') {
-      return res.status(400).json({
-        message: 'Failed to send SMS',
-        termiiResponse
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "OTP sent successfully",
+        sid: message.sid,
       });
-    }
-
-    codes[phone] = code;
-    res.json({ message: 'Verification code sent', termiiResponse });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to send SMS', error: error.message });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Failed to send OTP",
+        error: error.message,
+      });
   }
 };
 
-
-export const verifyCode = (req, res) => {
+export const verifyCode = async (req, res) => {
   const { phone, code } = req.body;
+  const record = otpStore[phone];
 
-  if (codes[phone] && codes[phone] === code) {
-    delete codes[phone]; // One-time use
-    return res.json({ message: 'Phone number verified successfully' });
+  if (!record) {
+    return res.status(400).json({ success: false, message: "No OTP found" });
   }
 
-  return res.status(400).json({ message: 'Invalid or expired code' });
+  if (Date.now() > record.expiresAt) {
+    delete otpStore[phone];
+    return res.status(400).json({ success: false, message: "OTP expired" });
+  }
+
+  if (record.code == code) {
+    delete otpStore[phone];
+
+    try {
+      // Save phone number to Firestore before email auth
+      await db.collection("verifiedPhones").doc(phone).set({
+        phone,
+        verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return res
+        .status(200)
+        .json({ success: true, message: "OTP verified and phone saved" });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Phone verified but failed to save",
+          error: error.message,
+        });
+    }
+  }
+
+  res.status(400).json({ success: false, message: "Invalid OTP" });
 };
